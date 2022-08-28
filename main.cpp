@@ -1,4 +1,3 @@
-#include <iostream>
 #include <vector>
 #include <systemc>
 using namespace sc_core;

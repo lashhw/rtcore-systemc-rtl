@@ -1,8 +1,0 @@
-#ifndef DEFAULT_SYSTEMC_INTERSECTION_HPP
-#define DEFAULT_SYSTEMC_INTERSECTION_HPP
-
-struct Intersection {
-    float t, u, v;
-};
-
-#endif //DEFAULT_SYSTEMC_INTERSECTION_HPP

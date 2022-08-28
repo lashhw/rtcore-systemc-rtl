@@ -1,8 +1,6 @@
 #ifndef DEFAULT_SYSTEMC_TRV_HPP
 #define DEFAULT_SYSTEMC_TRV_HPP
 
-#include "../custom_structs/aabb_intersector.hpp"
-
 #define IDLE 0
 #define INIT 1
 #define BBOX 2
@@ -16,8 +14,14 @@ SC_MODULE(TRV) {
     sc_in<bool> clk;
     sc_in<bool> reset;
     sc_in<bool> start;
-    sc_in<Ray> ray;
-    sc_out<bool> done;
+    sc_in<float> origin_x;
+    sc_in<float> origin_y;
+    sc_in<float> origin_z;
+    sc_in<float> dir_x;
+    sc_in<float> dir_y;
+    sc_in<float> dir_z;
+    sc_in<float> tmax;
+    sc_out<bool> done;  // wire
     sc_out<bool> isected;
     sc_out<float> t;
     sc_out<float> u;
@@ -30,13 +34,11 @@ SC_MODULE(TRV) {
     // internal states
     Bvh *bvh;
     sc_signal<int> state;
-    AABBIntersector aabb_intersector;
     sc_signal<int> stk_size;
-    sc_signal<int> stk_data[Bvh::BVH_MAX_DEPTH];
+    sc_signal<int> stk_data[Bvh::BVH_MAX_DEPTH-1];
     sc_signal<int> left_node_idx;
     sc_signal<int> right_node_idx;  // wire
     sc_signal<int> curr_node_idx;  // wire
-    sc_signal<Ray> curr_ray;
     sc_signal<float> entry_left;
     sc_signal<float> entry_right;
     sc_signal<bool> curr_left;
@@ -46,13 +48,28 @@ SC_MODULE(TRV) {
     sc_signal<float> ist_t;
     sc_signal<float> ist_u;
     sc_signal<float> ist_v;
+    sc_signal<bool> octant_x;
+    sc_signal<bool> octant_y;
+    sc_signal<bool> octant_z;
+    sc_signal<float> inv_dir_x;
+    sc_signal<float> inv_dir_y;
+    sc_signal<float> inv_dir_z;
+    sc_signal<float> scaled_origin_x;
+    sc_signal<float> scaled_origin_y;
+    sc_signal<float> scaled_origin_z;
 
     SC_HAS_PROCESS(TRV);
     TRV(sc_module_name mn, Bvh *bvh) : sc_module(mn), ist("ist", bvh), bvh(bvh) {
         ist.clk(clk);
         ist.reset(reset);
-        ist.ray(curr_ray);
         ist.trig_idx(curr_trig_idx);
+        ist.origin_x(origin_x);
+        ist.origin_y(origin_y);
+        ist.origin_z(origin_z);
+        ist.dir_x(dir_x);
+        ist.dir_y(dir_y);
+        ist.dir_z(dir_z);
+        ist.tmax(t);
         ist.isected(ist_isected);
         ist.t(ist_t);
         ist.u(ist_u);
@@ -78,18 +95,37 @@ SC_MODULE(TRV) {
 
     void main() {
         if (state == INIT) {
-            aabb_intersector = AABBIntersector(ray);
+            t = tmax;
             stk_size = 0;
             left_node_idx = bvh->nodes[0].left_node_idx;
-            curr_ray = ray;
             entry_left = FLT_MAX;
             entry_right = FLT_MAX;
             curr_left = true;
+            octant_x = dir_x < 0;
+            octant_y = dir_y < 0;
+            octant_z = dir_z < 0;
+            float inv_dir_x_tmp = 1.f / ((fabsf(dir_x) < FLT_EPSILON) ? copysignf(FLT_EPSILON, dir_x) : dir_x);
+            float inv_dir_y_tmp = 1.f / ((fabsf(dir_y) < FLT_EPSILON) ? copysignf(FLT_EPSILON, dir_y) : dir_y);
+            float inv_dir_z_tmp = 1.f / ((fabsf(dir_z) < FLT_EPSILON) ? copysignf(FLT_EPSILON, dir_z) : dir_z);
+            inv_dir_x = inv_dir_x_tmp;
+            inv_dir_y = inv_dir_y_tmp;
+            inv_dir_z = inv_dir_z_tmp;
+            scaled_origin_x = -origin_x * inv_dir_x_tmp;
+            scaled_origin_y = -origin_y * inv_dir_y_tmp;
+            scaled_origin_z = -origin_z * inv_dir_z_tmp;
         } else if (state == BBOX) {
-            float tmp_entry;
-            if (aabb_intersector.intersect(bvh->nodes[curr_node_idx].bbox, tmp_entry)) {
-                if (curr_left) entry_left = tmp_entry;
-                else entry_right = tmp_entry;
+            float *bounds = bvh->nodes[curr_node_idx].bbox.bounds;
+            float entry_x = inv_dir_x * bounds[0 + octant_x] + scaled_origin_x;
+            float entry_y = inv_dir_y * bounds[2 + octant_y] + scaled_origin_y;
+            float entry_z = inv_dir_z * bounds[4 + octant_z] + scaled_origin_z;
+            float entry = fmaxf(entry_x, fmaxf(entry_y, entry_z));
+            float exit_x = inv_dir_x * bounds[1 - octant_x] + scaled_origin_x;
+            float exit_y = inv_dir_y * bounds[3 - octant_y] + scaled_origin_y;
+            float exit_z = inv_dir_z * bounds[5 - octant_z] + scaled_origin_z;
+            float exit = fminf(exit_x, fminf(exit_y, exit_z));
+            if (entry <= exit) {
+                if (curr_left) entry_left = entry;
+                else entry_right = entry;
             }
         } else if (state == LEAF_PREP) {
             int first_trig_idx = bvh->nodes[curr_node_idx].first_trig_idx;
@@ -104,9 +140,6 @@ SC_MODULE(TRV) {
                 u = ist_u;
                 v = ist_v;
                 trig_idx = curr_trig_idx;
-                Ray tmp_ray = curr_ray;
-                tmp_ray.tmax = ist_t;
-                curr_ray = tmp_ray;
             }
             curr_trig_idx = curr_trig_idx + 1;
         } else if (state == SWITCH) {

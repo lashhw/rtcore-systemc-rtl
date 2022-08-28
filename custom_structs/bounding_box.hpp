@@ -1,6 +1,8 @@
 #ifndef DEFAULT_SYSTEMC_BOUNDING_BOX_HPP
 #define DEFAULT_SYSTEMC_BOUNDING_BOX_HPP
 
+#include <cfloat>
+
 struct BoundingBox {
     BoundingBox() { }
     BoundingBox(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)

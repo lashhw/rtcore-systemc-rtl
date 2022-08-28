@@ -1,8 +1,7 @@
 #ifndef DEFAULT_SYSTEMC_TRIANGLE_HPP
 #define DEFAULT_SYSTEMC_TRIANGLE_HPP
 
-#include "ray.hpp"
-#include "intersection.hpp"
+#include "vec3.hpp"
 #include "bounding_box.hpp"
 
 struct Triangle {
