@@ -24,8 +24,7 @@ SC_MODULE(IST) {
     SC_HAS_PROCESS(IST);
     IST(sc_module_name mn, Bvh *bvh) : sc_module(mn), bvh(bvh) {
         SC_METHOD(main)
-        sensitive << clk.pos();
-        dont_initialize();
+        sensitive << trig_idx << origin_x << origin_y << origin_z << dir_x << dir_y << dir_z << tmax;
     }
 
     void main() {
@@ -35,22 +34,19 @@ SC_MODULE(IST) {
         Vec3 r = cross(Vec3(dir_x, dir_y, dir_z), c);
         float inv_det = 1.f / dot(Vec3(dir_x, dir_y, dir_z), trig->n);
 
-        float tmp_u, tmp_v;
-        tmp_u = inv_det * dot(trig->e2, r);
-        tmp_v = inv_det * dot(trig->e1, r);
+        float u_tmp, v_tmp, t_tmp;
+        u_tmp = inv_det * dot(trig->e2, r);
+        v_tmp = inv_det * dot(trig->e1, r);
+        t_tmp = inv_det * dot(c, trig->n);
 
-        bool tmp_isected = false;
-        if (tmp_u >= 0.0f && tmp_v >= 0.0f && (tmp_u + tmp_v) <= 1.0f) {
-            float tmp_t = inv_det * dot(c, trig->n);
-            if (0 < tmp_t && tmp_t <= tmax) {
-                tmp_isected = true;
-                t = tmp_t;
-                u = tmp_u;
-                v = tmp_v;
-            }
+        if (u_tmp >= 0.0f && v_tmp >= 0.0f && (u_tmp + v_tmp) <= 1.0f && 0 < t_tmp && t_tmp <= tmax) {
+            isected = true;
+            t = t_tmp;
+            u = u_tmp;
+            v = v_tmp;
+        } else {
+            isected = false;
         }
-
-        isected = tmp_isected;
     }
 };
 

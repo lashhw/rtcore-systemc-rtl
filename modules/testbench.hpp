@@ -79,16 +79,7 @@ SC_MODULE(Testbench) {
         sc_trace(tf, trv.entry_left, "trv.entry_left");
         sc_trace(tf, trv.entry_right, "trv.entry_right");
         sc_trace(tf, trv.curr_node_idx, "trv.curr_node_idx");
-        sc_trace(tf, trv.left_node_idx, "trv.left_node_idx");
-        sc_trace(tf, trv.octant_x, "trv.octant_x");
-        sc_trace(tf, trv.octant_y, "trv.octant_y");
-        sc_trace(tf, trv.octant_z, "trv.octant_z");
-        sc_trace(tf, trv.inv_dir_x, "trv.inv_dir_x");
-        sc_trace(tf, trv.inv_dir_y, "trv.inv_dir_y");
-        sc_trace(tf, trv.inv_dir_z, "trv.inv_dir_z");
-        sc_trace(tf, trv.scaled_origin_x, "trv.scaled_origin_x");
-        sc_trace(tf, trv.scaled_origin_y, "trv.scaled_origin_y");
-        sc_trace(tf, trv.scaled_origin_z, "trv.scaled_origin_z");
+        sc_trace(tf, trv.stk_size, "trv.stk_size");
 
         sc_trace(tf, trv.ist.isected, "trv.ist.isected");
         sc_trace(tf, trv.ist.t, "trv.ist.t");
@@ -112,8 +103,8 @@ SC_MODULE(Testbench) {
 
         float horizontal = 0.2f;
         float vertical = 0.2f;
-        int width = 100;
-        int height = 100;
+        int width = 600;
+        int height = 600;
 
         std::ofstream file("image.ppm");
         file << "P3\n" << width << ' ' << height << "\n255\n";

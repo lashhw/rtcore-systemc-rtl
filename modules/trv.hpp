@@ -9,6 +9,7 @@
 #define SWITCH 5
 #define STEP 6
 
+// TODO: this TRV unit works only when the root node of BVH is not leaf
 SC_MODULE(TRV) {
     // ports
     sc_in<bool> clk;
@@ -44,10 +45,10 @@ SC_MODULE(TRV) {
     sc_signal<bool> curr_left;
     sc_signal<int> curr_trig_idx;
     sc_signal<int> last_trig_idx;
-    sc_signal<bool> ist_isected;
-    sc_signal<float> ist_t;
-    sc_signal<float> ist_u;
-    sc_signal<float> ist_v;
+    sc_signal<bool> ist_isected;  // wire
+    sc_signal<float> ist_t;  // wire
+    sc_signal<float> ist_u;  // wire
+    sc_signal<float> ist_v;  // wire
     sc_signal<bool> octant_x;
     sc_signal<bool> octant_y;
     sc_signal<bool> octant_z;

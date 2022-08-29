@@ -25,6 +25,6 @@ Bvh get_bvh() {
 int sc_main(int, char*[]) {
     Bvh bvh = get_bvh();
     Testbench tb("tb", &bvh);
-    sc_start(10000000, SC_PS);
+    sc_start(100000000, SC_PS);
     return 0;
 }
