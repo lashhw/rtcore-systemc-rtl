@@ -28,16 +28,33 @@ SC_MODULE(IST) {
     }
 
     void main() {
-        Triangle *trig = &bvh->triangles[trig_idx];
+        // load triangle from memory
+        Triangle* trig = &bvh->triangles[trig_idx];
+        float n_x = trig->n.x;
+        float n_y = trig->n.y;
+        float n_z = trig->n.z;
+        float p0_x = trig->p0.x;
+        float p0_y = trig->p0.y;
+        float p0_z = trig->p0.z;
+        float e1_x = trig->e1.x;
+        float e1_y = trig->e1.y;
+        float e1_z = trig->e1.z;
+        float e2_x = trig->e2.x;
+        float e2_y = trig->e2.y;
+        float e2_z = trig->e2.z;
 
-        Vec3 c = trig->p0 - Vec3(origin_x, origin_y, origin_z);
-        Vec3 r = cross(Vec3(dir_x, dir_y, dir_z), c);
-        float inv_det = 1.f / dot(Vec3(dir_x, dir_y, dir_z), trig->n);
+        float c_x = p0_x - origin_x;
+        float c_y = p0_y - origin_y;
+        float c_z = p0_z - origin_z;
+        float r_x = dir_y * c_z - dir_z * c_y;
+        float r_y = dir_z * c_x - dir_x * c_z;
+        float r_z = dir_x * c_y - dir_y * c_x;
+        float inv_det = 1.f / (dir_x * n_x + dir_y * n_y + dir_z * n_z);
 
         float u_tmp, v_tmp, t_tmp;
-        u_tmp = inv_det * dot(trig->e2, r);
-        v_tmp = inv_det * dot(trig->e1, r);
-        t_tmp = inv_det * dot(c, trig->n);
+        u_tmp = inv_det * (e2_x * r_x + e2_y * r_y + e2_z * r_z);
+        v_tmp = inv_det * (e1_x * r_x + e1_y * r_y + e1_z * r_z);
+        t_tmp = inv_det * (c_x * n_x + c_y * n_y + c_z * n_z);
 
         if (u_tmp >= 0.0f && v_tmp >= 0.0f && (u_tmp + v_tmp) <= 1.0f && 0 < t_tmp && t_tmp <= tmax) {
             isected = true;

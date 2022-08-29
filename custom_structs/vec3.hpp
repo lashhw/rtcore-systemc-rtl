@@ -74,10 +74,4 @@ Vec3& Vec3::operator*=(float t) {
     return *this;
 }
 
-void sc_trace(sc_trace_file *tf, const Vec3 &v, const std::string &name) {
-    sc_trace(tf, v.x, name + ".x");
-    sc_trace(tf, v.y, name + ".y");
-    sc_trace(tf, v.z, name + ".z");
-}
-
 #endif //DEFAULT_SYSTEMC_VEC3_HPP
