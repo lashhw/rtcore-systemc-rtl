@@ -104,12 +104,11 @@ SC_MODULE(Testbench) {
     void main() {
         reset = false;
         start = false;
-        wait(5, SC_PS);
-        reset = true;
-
         origin_x = 0.f;
         origin_y = 0.1f;
         origin_z = 1.f;
+        wait(5, SC_PS);
+        reset = true;
 
         float horizontal = 0.2f;
         float vertical = 0.2f;
