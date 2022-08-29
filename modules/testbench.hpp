@@ -1,6 +1,7 @@
 #ifndef DEFAULT_SYSTEMC_TESTBENCH_HPP
 #define DEFAULT_SYSTEMC_TESTBENCH_HPP
 
+#include <fstream>
 #include "ist.hpp"
 #include "trv.hpp"
 
@@ -26,12 +27,16 @@ SC_MODULE(Testbench) {
     // submodules
     TRV trv;
 
+    // internal states
+    Bvh *bvh;
+
     // vcd file
     sc_trace_file* tf;
 
     SC_HAS_PROCESS(Testbench);
     Testbench(sc_module_name mn, Bvh *bvh)
-        : sc_module(mn), clk("clk", 2, SC_PS), trv("trv", bvh) {
+        : sc_module(mn), clk("clk", 2, SC_PS), trv("trv", bvh), bvh(bvh) {
+        // link TRV
         trv.clk(clk);
         trv.reset(reset);
         trv.start(start);
@@ -51,6 +56,7 @@ SC_MODULE(Testbench) {
 
         SC_THREAD(main);
 
+        /*
         tf = sc_create_vcd_trace_file("wave");
         sc_trace(tf, clk, "clk");
         sc_trace(tf, reset, "reset");
@@ -73,6 +79,7 @@ SC_MODULE(Testbench) {
         sc_trace(tf, trv.entry_left, "trv.entry_left");
         sc_trace(tf, trv.entry_right, "trv.entry_right");
         sc_trace(tf, trv.curr_node_idx, "trv.curr_node_idx");
+        sc_trace(tf, trv.left_node_idx, "trv.left_node_idx");
         sc_trace(tf, trv.octant_x, "trv.octant_x");
         sc_trace(tf, trv.octant_y, "trv.octant_y");
         sc_trace(tf, trv.octant_z, "trv.octant_z");
@@ -87,28 +94,58 @@ SC_MODULE(Testbench) {
         sc_trace(tf, trv.ist.t, "trv.ist.t");
         sc_trace(tf, trv.ist.u, "trv.ist.u");
         sc_trace(tf, trv.ist.v, "trv.ist.v");
+         */
     }
 
     ~Testbench() {
-        sc_close_vcd_trace_file(tf);
+        // sc_close_vcd_trace_file(tf);
     }
 
     void main() {
         reset = false;
         start = false;
+        wait(5, SC_PS);
+        reset = true;
+
         origin_x = 0.f;
         origin_y = 0.1f;
         origin_z = 1.f;
-        dir_x = 0.f;
-        dir_y = 0.f;
-        dir_z = -1.f;
-        tmax = FLT_MAX;
-        wait(5, SC_PS);
-        reset = true;
-        wait(2, SC_PS);
-        start.write(true);
-        wait(2, SC_PS);
-        start = false;
+
+        float horizontal = 0.2f;
+        float vertical = 0.2f;
+        int width = 100;
+        int height = 100;
+
+        std::ofstream file("image.ppm");
+        file << "P3\n" << width << ' ' << height << "\n255\n";
+        for(int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                dir_x = (-0.1f + horizontal * j / width) - origin_x;
+                dir_y = (0.2f - vertical * i / height) - origin_y;
+                dir_z = -1.f;
+                tmax = FLT_MAX;
+                wait(2, SC_PS);
+                start.write(true);
+                wait(2, SC_PS);
+                start = false;
+                wait(done.posedge_event());
+                if (isected) {
+                    float r = bvh->triangles[trig_idx].n.x;
+                    float g = bvh->triangles[trig_idx].n.y;
+                    float b = bvh->triangles[trig_idx].n.z;
+                    float length = sqrtf(r * r + g * g + b * b);
+                    r = (r / length + 1.f) / 2.f;
+                    g = (g / length + 1.f) / 2.f;
+                    b = (b / length + 1.f) / 2.f;
+                    int ir = std::clamp(int(256.f * r), 0, 255);
+                    int ig = std::clamp(int(256.f * g), 0, 255);
+                    int ib = std::clamp(int(256.f * b), 0, 255);
+                    file << ir << ' ' << ig << ' ' << ib << "\n";
+                } else {
+                    file << "0 0 0\n";
+                }
+            }
+        }
     }
 };
 

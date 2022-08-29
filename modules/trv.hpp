@@ -90,11 +90,12 @@ SC_MODULE(TRV) {
         sensitive << left_node_idx;
 
         SC_METHOD(update_curr_node_idx)
-        sensitive << curr_left;
+        sensitive << curr_left << left_node_idx << right_node_idx;
     }
 
     void main() {
         if (state == INIT) {
+            isected = false;
             t = tmax;
             stk_size = 0;
             left_node_idx = bvh->nodes[0].left_node_idx;
