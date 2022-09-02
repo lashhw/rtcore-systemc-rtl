@@ -26,7 +26,6 @@ SC_MODULE(RAY_AABB) {
         SC_METHOD(main);
         sensitive << curr_node_idx << octant_x << octant_y << octant_z << inv_dir_x << inv_dir_y << inv_dir_z
                   << scaled_origin_x << scaled_origin_y << scaled_origin_z;
-        dont_initialize();
     }
 
     void main() {

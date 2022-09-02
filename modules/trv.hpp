@@ -193,7 +193,7 @@ SC_MODULE(TRV) {
         } else if (state == INIT) {
             state = BBOX;
         } else if (state == BBOX) {
-            if (bvh->nodes[curr_node_idx].is_leaf()) state = LEAF_PREP;
+            if (bvh->nodes[curr_node_idx].is_leaf() && ray_aabb_isected) state = LEAF_PREP;
             else state = SWITCH;
         } else if (state == LEAF_PREP) {
             state = LEAF;
