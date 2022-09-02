@@ -8,7 +8,7 @@
 SC_MODULE(Testbench) {
     // signals
     sc_clock clk;
-    sc_signal<bool> reset;
+    sc_signal<bool> resetn;
     sc_signal<bool> start;
     sc_signal<float> origin_x;
     sc_signal<float> origin_y;
@@ -38,7 +38,7 @@ SC_MODULE(Testbench) {
         : sc_module(mn), clk("clk", 2, SC_PS), trv("trv", bvh), bvh(bvh) {
         // link TRV
         trv.clk(clk);
-        trv.reset(reset);
+        trv.resetn(resetn);
         trv.start(start);
         trv.origin_x(origin_x);
         trv.origin_y(origin_y);
@@ -59,7 +59,7 @@ SC_MODULE(Testbench) {
         /*
         tf = sc_create_vcd_trace_file("wave");
         sc_trace(tf, clk, "clk");
-        sc_trace(tf, reset, "reset");
+        sc_trace(tf, resetn, "resetn");
         sc_trace(tf, start, "start");
         sc_trace(tf, origin_x, "origin_x");
         sc_trace(tf, origin_y, "origin_y");
@@ -93,13 +93,13 @@ SC_MODULE(Testbench) {
     }
 
     void main() {
-        reset = false;
+        resetn = false;
         start = false;
         origin_x = 0.f;
         origin_y = 0.1f;
         origin_z = 1.f;
         wait(5, SC_PS);
-        reset = true;
+        resetn = true;
 
         float horizontal = 0.2f;
         float vertical = 0.2f;

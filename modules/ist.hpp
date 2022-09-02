@@ -4,7 +4,6 @@
 SC_MODULE(IST) {
     // ports
     sc_in<bool> clk;
-    sc_in<bool> reset;
     sc_in<int> trig_idx;
     sc_in<float> origin_x;
     sc_in<float> origin_y;

@@ -1,6 +1,8 @@
 #ifndef DEFAULT_SYSTEMC_TRV_HPP
 #define DEFAULT_SYSTEMC_TRV_HPP
 
+#include "ray_aabb.hpp"
+
 #define IDLE 0
 #define INIT 1
 #define BBOX 2
@@ -13,7 +15,7 @@
 SC_MODULE(TRV) {
     // ports
     sc_in<bool> clk;
-    sc_in<bool> reset;
+    sc_in<bool> resetn;
     sc_in<bool> start;
     sc_in<float> origin_x;
     sc_in<float> origin_y;
@@ -28,9 +30,6 @@ SC_MODULE(TRV) {
     sc_out<float> u;
     sc_out<float> v;
     sc_out<int> trig_idx;
-
-    // submodules
-    IST ist;
 
     // internal states
     Bvh *bvh;
@@ -58,11 +57,16 @@ SC_MODULE(TRV) {
     sc_signal<float> scaled_origin_x;
     sc_signal<float> scaled_origin_y;
     sc_signal<float> scaled_origin_z;
+    sc_signal<bool> ray_aabb_isected;  // wire
+    sc_signal<float> entry;  // wire
+
+    // submodules
+    IST ist;
+    RAY_AABB ray_aabb;
 
     SC_HAS_PROCESS(TRV);
-    TRV(sc_module_name mn, Bvh *bvh) : sc_module(mn), ist("ist", bvh), bvh(bvh) {
+    TRV(sc_module_name mn, Bvh *bvh) : sc_module(mn), bvh(bvh), ist("ist", bvh), ray_aabb("ray_aabb", bvh) {
         ist.clk(clk);
-        ist.reset(reset);
         ist.trig_idx(curr_trig_idx);
         ist.origin_x(origin_x);
         ist.origin_y(origin_y);
@@ -75,6 +79,20 @@ SC_MODULE(TRV) {
         ist.t(ist_t);
         ist.u(ist_u);
         ist.v(ist_v);
+
+        ray_aabb.clk(clk);
+        ray_aabb.curr_node_idx(curr_node_idx);
+        ray_aabb.octant_x(octant_x);
+        ray_aabb.octant_y(octant_y);
+        ray_aabb.octant_z(octant_z);
+        ray_aabb.inv_dir_x(inv_dir_x);
+        ray_aabb.inv_dir_y(inv_dir_y);
+        ray_aabb.inv_dir_z(inv_dir_z);
+        ray_aabb.scaled_origin_x(scaled_origin_x);
+        ray_aabb.scaled_origin_y(scaled_origin_y);
+        ray_aabb.scaled_origin_z(scaled_origin_z);
+        ray_aabb.isected(ray_aabb_isected);
+        ray_aabb.entry(entry);
 
         SC_METHOD(main)
         sensitive << clk.pos();
@@ -116,16 +134,7 @@ SC_MODULE(TRV) {
             scaled_origin_y = -origin_y * inv_dir_y_tmp;
             scaled_origin_z = -origin_z * inv_dir_z_tmp;
         } else if (state == BBOX) {
-            float *bounds = bvh->nodes[curr_node_idx].bbox.bounds;
-            float entry_x = inv_dir_x * bounds[0 + octant_x] + scaled_origin_x;
-            float entry_y = inv_dir_y * bounds[2 + octant_y] + scaled_origin_y;
-            float entry_z = inv_dir_z * bounds[4 + octant_z] + scaled_origin_z;
-            float entry = fmaxf(entry_x, fmaxf(entry_y, entry_z));
-            float exit_x = inv_dir_x * bounds[1 - octant_x] + scaled_origin_x;
-            float exit_y = inv_dir_y * bounds[3 - octant_y] + scaled_origin_y;
-            float exit_z = inv_dir_z * bounds[5 - octant_z] + scaled_origin_z;
-            float exit = fminf(exit_x, fminf(exit_y, exit_z));
-            if (entry <= exit) {
+            if (ray_aabb_isected) {
                 if (curr_left) entry_left = entry;
                 else entry_right = entry;
             }
@@ -176,7 +185,7 @@ SC_MODULE(TRV) {
     }
 
     void update_state() {
-        if (!reset) {
+        if (!resetn) {
             state = IDLE;
         } else if (state == IDLE) {
             if (start) state = INIT;
