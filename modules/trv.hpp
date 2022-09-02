@@ -1,5 +1,5 @@
-#ifndef DEFAULT_SYSTEMC_TRV_HPP
-#define DEFAULT_SYSTEMC_TRV_HPP
+#ifndef RTCORE_SYSTEMC_TRV_HPP
+#define RTCORE_SYSTEMC_TRV_HPP
 
 #include "ray_aabb.hpp"
 
@@ -223,4 +223,4 @@ SC_MODULE(TRV) {
     }
 };
 
-#endif //DEFAULT_SYSTEMC_TRV_HPP
+#endif //RTCORE_SYSTEMC_TRV_HPP

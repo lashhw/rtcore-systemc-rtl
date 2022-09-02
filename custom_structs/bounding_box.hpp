@@ -1,5 +1,5 @@
-#ifndef DEFAULT_SYSTEMC_BOUNDING_BOX_HPP
-#define DEFAULT_SYSTEMC_BOUNDING_BOX_HPP
+#ifndef RTCORE_SYSTEMC_BOUNDING_BOX_HPP
+#define RTCORE_SYSTEMC_BOUNDING_BOX_HPP
 
 #include <cfloat>
 
@@ -38,4 +38,4 @@ void BoundingBox::reset() {
     bounds[1] = bounds[3] = bounds[5] = -FLT_MAX;
 }
 
-#endif //DEFAULT_SYSTEMC_BOUNDING_BOX_HPP
+#endif //RTCORE_SYSTEMC_BOUNDING_BOX_HPP

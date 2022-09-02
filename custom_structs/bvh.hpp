@@ -1,5 +1,5 @@
-#ifndef DEFAULT_SYSTEMC_BVH_HPP
-#define DEFAULT_SYSTEMC_BVH_HPP
+#ifndef RTCORE_SYSTEMC_BVH_HPP
+#define RTCORE_SYSTEMC_BVH_HPP
 
 #include <numeric>
 #include <algorithm>
@@ -201,4 +201,4 @@ Bvh::Bvh(const std::vector<Triangle> &unsorted_triangles) : num_triangles(unsort
     std::copy(tmp_nodes.get(), tmp_nodes.get() + num_nodes, nodes);
 }
 
-#endif //DEFAULT_SYSTEMC_BVH_HPP
+#endif //RTCORE_SYSTEMC_BVH_HPP

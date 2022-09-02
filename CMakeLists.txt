@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.23)
-project(default_systemc)
+project(rtcore-systemc)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(default_systemc main.cpp custom_structs/vec3.hpp custom_structs/triangle.hpp modules/ist.hpp modules/testbench.hpp custom_structs/bvh.hpp custom_structs/bounding_box.hpp modules/trv.hpp modules/ray_aabb.hpp)
-target_link_libraries(default_systemc systemc)
+add_executable(rtcore-systemc main.cpp custom_structs/vec3.hpp custom_structs/triangle.hpp modules/ist.hpp modules/testbench.hpp custom_structs/bvh.hpp custom_structs/bounding_box.hpp modules/trv.hpp modules/ray_aabb.hpp)
+target_link_libraries(rtcore-systemc systemc)

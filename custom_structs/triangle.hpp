@@ -1,5 +1,5 @@
-#ifndef DEFAULT_SYSTEMC_TRIANGLE_HPP
-#define DEFAULT_SYSTEMC_TRIANGLE_HPP
+#ifndef RTCORE_SYSTEMC_TRIANGLE_HPP
+#define RTCORE_SYSTEMC_TRIANGLE_HPP
 
 #include "vec3.hpp"
 #include "bounding_box.hpp"
@@ -34,4 +34,4 @@ BoundingBox Triangle::bounding_box() const {
     return bbox;
 }
 
-#endif //DEFAULT_SYSTEMC_TRIANGLE_HPP
+#endif //RTCORE_SYSTEMC_TRIANGLE_HPP

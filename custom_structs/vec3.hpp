@@ -1,5 +1,5 @@
-#ifndef DEFAULT_SYSTEMC_VEC3_HPP
-#define DEFAULT_SYSTEMC_VEC3_HPP
+#ifndef RTCORE_SYSTEMC_VEC3_HPP
+#define RTCORE_SYSTEMC_VEC3_HPP
 
 struct Vec3 {
     Vec3() { }
@@ -74,4 +74,4 @@ Vec3& Vec3::operator*=(float t) {
     return *this;
 }
 
-#endif //DEFAULT_SYSTEMC_VEC3_HPP
+#endif //RTCORE_SYSTEMC_VEC3_HPP
