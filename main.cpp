@@ -1,15 +1,15 @@
-#include <vector>
 #include <systemc>
 using namespace sc_core;
+using namespace sc_dt;
 
 #include "third_party/happly.h"
 #include "custom_structs/bvh.hpp"
 #include "modules/testbench.hpp"
 
 Bvh get_bvh() {
-    happly::PLYData ply_in("../third_party/bun_zipper.ply");
-    std::vector<std::array<double, 3>> v_pos = ply_in.getVertexPositions();
-    std::vector<std::vector<size_t>> f_idx = ply_in.getFaceIndices<size_t>();
+    happly::PLYData ply_data("../third_party/bun_zipper.ply");
+    std::vector<std::array<double, 3>> v_pos = ply_data.getVertexPositions();
+    std::vector<std::vector<size_t>> f_idx = ply_data.getFaceIndices<size_t>();
 
     std::vector<Triangle> triangles;
     for (int i = 0; i < f_idx.size(); i++) {
@@ -24,7 +24,7 @@ Bvh get_bvh() {
 
 int sc_main(int, char*[]) {
     Bvh bvh = get_bvh();
-    Testbench tb("tb", &bvh);
+    TESTBENCH tb("tb", &bvh);
     sc_start(100000000, SC_PS);
     return 0;
 }
