@@ -842,7 +842,7 @@ public:
   }
 
   /**
-   * @brief Low-level method to get a pointer to a property. Users probably don'm_t need to call this.
+   * @brief Low-level method to get a pointer to a property. Users probably don't need to call this.
    *
    * @param target The name of the property to get.
    *
@@ -1747,7 +1747,7 @@ private:
 
       // version
       if (versionStr != "1.0") {
-        throw std::runtime_error("PLY parser: encountered file with version != 1.0. Don'm_t know how to parse that");
+        throw std::runtime_error("PLY parser: encountered file with version != 1.0. Don't know how to parse that");
       }
       if (verbose) cout << "  - Version: " << versionStr << endl;
     }
