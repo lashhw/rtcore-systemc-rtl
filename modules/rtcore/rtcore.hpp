@@ -80,7 +80,6 @@ SC_MODULE(RTCORE) {
     // TRV-POST_FIFO
     sc_signal<bool> trv_pf_valid;
     sc_signal<bool> trv_pf_ready;
-    sc_signal<int> trv_pf_ray_id;
 
     // POST_FIFO-POST
     sc_signal<bool> pf_post_valid;
@@ -161,7 +160,7 @@ SC_MODULE(RTCORE) {
         // link POST_FIFO
         post_fifo.s_valid(trv_pf_valid);
         post_fifo.s_ready(trv_pf_ready);
-        post_fifo.s_ray_id(trv_pf_ray_id);
+        post_fifo.s_ray_id(trv_ist_pf_ray_id);
         post_fifo.clk(clk);
         post_fifo.srstn(srstn);
         post_fifo.m_valid(pf_post_valid);

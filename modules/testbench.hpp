@@ -17,7 +17,7 @@ SC_MODULE(TESTBENCH) {
     static constexpr int height = 600;
 
     // submodules
-    RTCORE<16> rtcore;
+    RTCORE<4> rtcore;
 
     // high-level objects
     Bvh *bvh;
@@ -91,6 +91,37 @@ SC_MODULE(TESTBENCH) {
         dont_initialize();
 
         tf = sc_create_vcd_trace_file("wave");
+
+        /*
+        sc_trace(tf, clk, "clk");
+        sc_trace(tf, srstn, "srstn");
+        sc_trace(tf, m_valid, "m_valid");
+        sc_trace(tf, rtcore.rd.s_alloc_ready, "rtcore.rd.s_alloc_ready");
+        sc_trace(tf, rtcore.rd.s_alloc_ray_id, "rtcore.rd.s_alloc_ray_id");
+        sc_trace(tf, rtcore.rd.m_valid, "rtcore.rd.m_valid");
+        sc_trace(tf, rtcore.rd.m_ray_id, "rtcore.rd.m_ray_id");
+        sc_trace(tf, rtcore.trv_fifo.m_valid, "rtcore.trv_fifo.m_valid");
+        sc_trace(tf, rtcore.trv_fifo.m_ray_id, "rtcore.trv_fifo.m_ray_id");
+        sc_trace(tf, rtcore.trv_arbitrator.s_tf_ready, "rtcore.trv_arbitrator.s_tf_ready");
+        sc_trace(tf, rtcore.trv_arbitrator.s_rd_ready, "rtcore.trv_arbitrator.s_rd_ready");
+        sc_trace(tf, rtcore.trv_arbitrator.m_valid, "rtcore.trv_arbitrator.m_valid");
+        sc_trace(tf, rtcore.trv_arbitrator.m_ray_id, "rtcore.trv_arbitrator.m_ray_id");
+        sc_trace(tf, rtcore.trv.s_ready, "rtcore.trv.s_ready");
+        sc_trace(tf, rtcore.trv.m_ray_id, "rtcore.trv.m_ray_id");
+        sc_trace(tf, rtcore.trv.m_ist_valid, "rtcore.trv.m_ist_valid");
+        sc_trace(tf, rtcore.trv.m_ist_trig_idx, "rtcore.trv.m_ist_trig_idx");
+        sc_trace(tf, rtcore.trv.m_is_last_trig, "rtcore.trv.m_is_last_trig");
+        sc_trace(tf, rtcore.trv.m_pf_valid, "rtcore.trv.m_pf_valid");
+        sc_trace(tf, rtcore.ist.m_valid, "rtcore.ist.m_valid");
+        sc_trace(tf, rtcore.ist.m_ray_id, "rtcore.ist.m_ray_id");
+        sc_trace(tf, rtcore.post_fifo.s_ready, "rtcore.post_fifo.s_ready");
+        sc_trace(tf, rtcore.post_fifo.m_valid, "rtcore.post_fifo.m_valid");
+        sc_trace(tf, rtcore.post_fifo.m_ray_id, "rtcore.post_fifo.m_ray_id");
+        sc_trace(tf, rtcore.post.s_ready, "rtcore.post.s_ready");
+        sc_trace(tf, rtcore.post.m_valid, "rtcore.post.m_valid");
+        sc_trace(tf, rtcore.post.m_ray_id, "rtcore.post.m_ray_id");
+        sc_trace(tf, s_ready, "s_ready");
+         */
     }
 
     void main() {

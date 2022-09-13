@@ -17,25 +17,23 @@ SC_MODULE(TRV_ARBITRATOR) {
 
     SC_CTOR(TRV_ARBITRATOR) {
         SC_METHOD(main)
-        sensitive << s_tf_valid << s_tf_ray_id
-                  << s_rd_valid << s_rd_ray_id
-                  << m_ready;
+        sensitive << m_ready << s_tf_valid << s_tf_ray_id << s_rd_valid << s_rd_ray_id;
     }
 
     void main() {
-        if (s_tf_valid) {
+        if (m_ready && s_tf_valid) {
             s_tf_ready = true;
             s_rd_ready = false;
             m_valid = true;
             m_ray_id = s_tf_ray_id;
-        } else if (s_rd_valid) {
+        } else if (m_ready && s_rd_valid) {
             s_tf_ready = false;
             s_rd_ready = true;
             m_valid = true;
             m_ray_id = s_rd_ray_id;
         } else {
-            s_rd_ready = false;
             s_tf_ready = false;
+            s_rd_ready = false;
             m_valid = false;
         }
     }
