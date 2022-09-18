@@ -12,10 +12,9 @@ SC_MODULE(TRV) {
     static constexpr int NODE_LOAD = 4;
     static constexpr int STEP = 5;
     static constexpr int STORE = 6;
-    static constexpr int LIST_LOAD = 7;
-    static constexpr int LIST_A = 8;
-    static constexpr int LIST_B = 9;
-    static constexpr int POST = 10;
+    static constexpr int LIST_PREP = 7;
+    static constexpr int LIST = 8;
+    static constexpr int POST = 9;
 
     // ports
     sc_in<bool> s_valid;
@@ -25,14 +24,16 @@ SC_MODULE(TRV) {
     sc_in<bool> clk;
     sc_in<bool> srstn;
 
-    sc_out<int> m_ray_id;
-
-    sc_out<bool> m_ist_valid;
-    sc_out<int> m_ist_trig_idx;
-    sc_out<bool> m_is_last_trig;
+    sc_out<bool> m_list_valid;
+    sc_in<bool> m_list_ready;
+    sc_out<int> m_list_ray_id;
+    sc_out<int> m_list_node_a_idx;
+    sc_out<bool> m_list_node_b_valid;
+    sc_out<int> m_list_node_b_idx;
 
     sc_out<bool> m_pf_valid;
     sc_in<bool> m_pf_ready;
+    sc_out<int> m_pf_ray_id;
 
     // high-level objects
     Bvh *bvh;
@@ -40,6 +41,8 @@ SC_MODULE(TRV) {
 
     // internal signals
     sc_signal<int> state;
+
+    sc_signal<int> ray_id;
 
     sc_signal<int> left_node_idx;
     sc_signal<int> right_node_idx;
@@ -84,12 +87,8 @@ SC_MODULE(TRV) {
     sc_signal<int> stk_data[MAX_WORKING_RAYS][Bvh::BVH_MAX_DEPTH - 1];
     sc_signal<int> finished;
 
-    sc_signal<int> a_last_trig_idx;
-    sc_signal<int> b_first_trig_idx;
-    sc_signal<int> b_last_trig_idx;
-
     SC_HAS_PROCESS(TRV);
-    TRV(sc_module_name mn, Bvh *bvh, RayState *ray_states)
+    TRV(const sc_module_name &mn, Bvh *bvh, RayState *ray_states)
         : sc_module(mn), bvh(bvh), ray_states(ray_states) {
         SC_METHOD(main)
         sensitive << clk.pos();
@@ -98,14 +97,17 @@ SC_MODULE(TRV) {
         SC_METHOD(update_s_ready)
         sensitive << state;
 
-        SC_METHOD(update_m_ist_valid)
+        SC_METHOD(update_m_list_valid)
         sensitive << state;
 
-        SC_METHOD(update_m_is_last_trig)
-        sensitive << state << m_ist_trig_idx << b_last_trig_idx;
+        SC_METHOD(update_m_list_ray_id)
+        sensitive << ray_id;
 
-        SC_METHOD(update_m_post_valid)
+        SC_METHOD(update_m_pf_valid)
         sensitive << state;
+
+        SC_METHOD(update_m_pf_ray_id)
+        sensitive << ray_id;
 
         SC_METHOD(update_right_node_idx)
         sensitive << left_node_idx;
@@ -118,26 +120,26 @@ SC_MODULE(TRV) {
         if (!srstn) {
             state = IDLE;
         } if (state == IDLE) {
-            m_ray_id = s_ray_id;
+            ray_id = s_ray_id;
 
             // update state
             if (s_valid) state = LOAD;
         } else if (state == LOAD) {
-            int left_node_idx_tmp = ray_states[m_ray_id].left_node_idx;
+            int left_node_idx_tmp = ray_states[ray_id].left_node_idx;
             left_node_idx = left_node_idx_tmp;
 
-            octant_x = ray_states[m_ray_id].octant_x;
-            octant_y = ray_states[m_ray_id].octant_y;
-            octant_z = ray_states[m_ray_id].octant_z;
-            inv_dir_x = ray_states[m_ray_id].inv_dir_x;
-            inv_dir_y = ray_states[m_ray_id].inv_dir_y;
-            inv_dir_z = ray_states[m_ray_id].inv_dir_z;
-            scaled_origin_x = ray_states[m_ray_id].scaled_origin_x;
-            scaled_origin_y = ray_states[m_ray_id].scaled_origin_y;
-            scaled_origin_z = ray_states[m_ray_id].scaled_origin_z;
+            octant_x = ray_states[ray_id].octant_x;
+            octant_y = ray_states[ray_id].octant_y;
+            octant_z = ray_states[ray_id].octant_z;
+            inv_dir_x = ray_states[ray_id].inv_dir_x;
+            inv_dir_y = ray_states[ray_id].inv_dir_y;
+            inv_dir_z = ray_states[ray_id].inv_dir_z;
+            scaled_origin_x = ray_states[ray_id].scaled_origin_x;
+            scaled_origin_y = ray_states[ray_id].scaled_origin_y;
+            scaled_origin_z = ray_states[ray_id].scaled_origin_z;
 
             // update state
-            if (ray_states[m_ray_id].finished) state = POST;
+            if (ray_states[ray_id].finished) state = POST;
             else state = BBOX_LOAD;
         } else if (state == BBOX_LOAD) {
             float *left_bounds = bvh->nodes[left_node_idx].bbox.bounds;
@@ -201,13 +203,13 @@ SC_MODULE(TRV) {
             if (left_valid) {
                 if (right_valid) {
                     if (left_entry > right_entry) {
-                        stk_data[m_ray_id][stk_size[m_ray_id]] = left_node_left_node_idx;
-                        stk_size[m_ray_id] = stk_size[m_ray_id] + 1;
+                        stk_data[ray_id][stk_size[ray_id]] = left_node_left_node_idx;
+                        stk_size[ray_id] = stk_size[ray_id] + 1;
                         left_node_idx = right_node_left_node_idx;
                         finished = false;
                     } else {
-                        stk_data[m_ray_id][stk_size[m_ray_id]] = right_node_left_node_idx;
-                        stk_size[m_ray_id] = stk_size[m_ray_id] + 1;
+                        stk_data[ray_id][stk_size[ray_id]] = right_node_left_node_idx;
+                        stk_size[ray_id] = stk_size[ray_id] + 1;
                         left_node_idx = left_node_left_node_idx;
                         finished = false;
                     }
@@ -219,9 +221,9 @@ SC_MODULE(TRV) {
                 left_node_idx = right_node_left_node_idx;
                 finished = false;
             } else {
-                if (stk_size[m_ray_id] != 0) {
-                    left_node_idx = stk_data[m_ray_id][stk_size[m_ray_id] - 1];
-                    stk_size[m_ray_id] = stk_size[m_ray_id] - 1;
+                if (stk_size[ray_id] != 0) {
+                    left_node_idx = stk_data[ray_id][stk_size[ray_id] - 1];
+                    stk_size[ray_id] = stk_size[ray_id] - 1;
                     finished = false;
                 } else {
                     finished = true;
@@ -229,57 +231,35 @@ SC_MODULE(TRV) {
             }
 
             // update state
-            if (!left_hit && !right_hit && stk_size[m_ray_id] == 0) state = POST;
+            if (!left_hit && !right_hit && stk_size[ray_id] == 0) state = POST;
             else if ((left_hit && left_is_leaf) || (right_hit && right_is_leaf)) state = STORE;
             else state = BBOX_LOAD;
         } else if (state == STORE) {
-            ray_states[m_ray_id].left_node_idx = left_node_idx;
-            ray_states[m_ray_id].finished = finished;
+            ray_states[ray_id].left_node_idx = left_node_idx;
+            ray_states[ray_id].finished = finished;
 
             // update state
-            state = LIST_LOAD;
-        } else if (state == LIST_LOAD) {
+            state = LIST_PREP;
+        } else if (state == LIST_PREP) {
             if (left_hit && left_is_leaf) {
                 if (right_hit && right_is_leaf) {
-                    int a_first_trig_idx = bvh->nodes[old_left_node_idx].first_trig_idx;
-                    m_ist_trig_idx = a_first_trig_idx;
-                    a_last_trig_idx = a_first_trig_idx + bvh->nodes[old_left_node_idx].num_trigs - 1;
-                    int b_first_trig_idx_tmp = bvh->nodes[old_right_node_idx].first_trig_idx;
-                    b_first_trig_idx = b_first_trig_idx_tmp;
-                    b_last_trig_idx = b_first_trig_idx_tmp + bvh->nodes[old_right_node_idx].num_trigs - 1;
-
-                    // update state
-                    state = LIST_A;
+                    m_list_node_a_idx = old_left_node_idx;
+                    m_list_node_b_valid = true;
+                    m_list_node_b_idx = old_right_node_idx;
                 } else {
-                    int b_first_trig_idx_tmp = bvh->nodes[old_left_node_idx].first_trig_idx;
-                    m_ist_trig_idx = b_first_trig_idx_tmp;
-                    b_last_trig_idx = b_first_trig_idx_tmp + bvh->nodes[old_left_node_idx].num_trigs - 1;
-
-                    // update state
-                    state = LIST_B;
+                    m_list_node_a_idx = old_left_node_idx;
+                    m_list_node_b_valid = false;
                 }
             } else {
-                int b_first_trig_idx_tmp = bvh->nodes[old_right_node_idx].first_trig_idx;
-                m_ist_trig_idx = b_first_trig_idx_tmp;
-                b_last_trig_idx = b_first_trig_idx_tmp + bvh->nodes[old_right_node_idx].num_trigs - 1;
-
-                // update state
-                state = LIST_B;
+                m_list_node_a_idx = old_right_node_idx;
+                m_list_node_b_valid = false;
             }
-        } else if (state == LIST_A) {
-            if (m_ist_trig_idx == a_last_trig_idx) {
-                m_ist_trig_idx = b_first_trig_idx;
-
-                // update state
-                state = LIST_B;
-            } else {
-                m_ist_trig_idx = m_ist_trig_idx + 1;
-            }
-        } else if (state == LIST_B) {
-            m_ist_trig_idx = m_ist_trig_idx + 1;
 
             // update state
-            if (m_ist_trig_idx == b_last_trig_idx) state = IDLE;
+            state = LIST;
+        } else if (state == LIST) {
+            // update state
+            if (m_list_ready) state = IDLE;
         } else if (state == POST) {
             // update state
             if (m_pf_ready) state = IDLE;
@@ -290,16 +270,20 @@ SC_MODULE(TRV) {
         s_ready = (state == IDLE);
     }
 
-    void update_m_ist_valid() {
-        m_ist_valid = (state == LIST_A || state == LIST_B);
+    void update_m_list_valid() {
+        m_list_valid = (state == LIST);
     }
 
-    void update_m_is_last_trig() {
-        m_is_last_trig = (state == LIST_B && m_ist_trig_idx == b_last_trig_idx);
+    void update_m_list_ray_id() {
+        m_list_ray_id = ray_id;
     }
 
-    void update_m_post_valid() {
+    void update_m_pf_valid() {
         m_pf_valid = (state == POST);
+    }
+
+    void update_m_pf_ray_id() {
+        m_pf_ray_id = ray_id;
     }
 
     void update_right_node_idx() {
