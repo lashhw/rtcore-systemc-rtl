@@ -6,6 +6,7 @@
 #include "fifos/trv_fifo.hpp"
 #include "arbitrators/trv_arbitrator.hpp"
 #include "trv.hpp"
+#include "list.hpp"
 #include "ist.hpp"
 #include "fifos/post_fifo.hpp"
 #include "post.hpp"
@@ -41,6 +42,7 @@ SC_MODULE(RTCORE) {
     TRV_FIFO<MAX_WORKING_RAYS> trv_fifo;
     TRV_ARBITRATOR trv_arbitrator;
     TRV<MAX_WORKING_RAYS> trv;
+    LIST<MAX_WORKING_RAYS> list;
     IST ist;
     POST_FIFO<MAX_WORKING_RAYS> post_fifo;
     POST post;
@@ -69,17 +71,24 @@ SC_MODULE(RTCORE) {
     sc_signal<bool> ta_trv_ready;
     sc_signal<int> ta_trv_ray_id;
 
-    // TRV-IST/POST_FIFO
-    sc_signal<int> trv_ist_pf_ray_id;
-
-    // TRV-IST
-    sc_signal<bool> trv_ist_valid;
-    sc_signal<int> trv_ist_trig_idx;
-    sc_signal<bool> trv_ist_is_last_trig;
+    // TRV-LIST
+    sc_signal<bool> trv_list_valid;
+    sc_signal<bool> trv_list_ready;
+    sc_signal<int> trv_list_ray_id;
+    sc_signal<int> trv_list_node_a_idx;
+    sc_signal<bool> trv_list_node_b_valid;
+    sc_signal<int> trv_list_node_b_idx;
 
     // TRV-POST_FIFO
     sc_signal<bool> trv_pf_valid;
     sc_signal<bool> trv_pf_ready;
+    sc_signal<int> trv_pf_ray_id;
+
+    // LIST-IST
+    sc_signal<bool> list_ist_valid;
+    sc_signal<int> list_ist_ray_id;
+    sc_signal<int> list_ist_ist_trig_idx;
+    sc_signal<bool> list_ist_is_last_trig;
 
     // POST_FIFO-POST
     sc_signal<bool> pf_post_valid;
@@ -93,8 +102,9 @@ SC_MODULE(RTCORE) {
     RTCORE(const sc_module_name &mn, Bvh *bvh)
         : sc_module(mn), rd("rd", ray_states),
           trv_fifo("trv_fifo"), trv_arbitrator("trv_arbitrator"),
-          trv("trv", bvh, ray_states), ist("ist", bvh, ray_states),
-          post_fifo("post_fifo"), post("post", ray_states), bvh(bvh) {
+          trv("trv", bvh, ray_states), list("list", bvh),
+          ist("ist", bvh, ray_states), post_fifo("post_fifo"),
+          post("post", ray_states), bvh(bvh) {
         // link RD
         rd.s_alloc_valid(s_valid);
         rd.s_alloc_ready(s_ready);
@@ -140,18 +150,35 @@ SC_MODULE(RTCORE) {
         trv.s_ray_id(ta_trv_ray_id);
         trv.clk(clk);
         trv.srstn(srstn);
-        trv.m_ray_id(trv_ist_pf_ray_id);
-        trv.m_ist_valid(trv_ist_valid);
-        trv.m_ist_trig_idx(trv_ist_trig_idx);
-        trv.m_is_last_trig(trv_ist_is_last_trig);
+        trv.m_list_valid(trv_list_valid);
+        trv.m_list_ready(trv_list_ready);
+        trv.m_list_ray_id(trv_list_ray_id);
+        trv.m_list_node_a_idx(trv_list_node_a_idx);
+        trv.m_list_node_b_valid(trv_list_node_b_valid);
+        trv.m_list_node_b_idx(trv_list_node_b_idx);
         trv.m_pf_valid(trv_pf_valid);
         trv.m_pf_ready(trv_pf_ready);
+        trv.m_pf_ray_id(trv_pf_ray_id);
+
+        // link LIST
+        list.s_valid(trv_list_valid);
+        list.s_ready(trv_list_ready);
+        list.s_ray_id(trv_list_ray_id);
+        list.s_node_a_idx(trv_list_node_a_idx);
+        list.s_node_b_valid(trv_list_node_b_valid);
+        list.s_node_b_idx(trv_list_node_b_idx);
+        list.clk(clk);
+        list.srstn(srstn);
+        list.m_valid(list_ist_valid);
+        list.m_ray_id(list_ist_ray_id);
+        list.m_ist_trig_idx(list_ist_ist_trig_idx);
+        list.m_is_last_trig(list_ist_is_last_trig);
 
         // link IST
-        ist.s_valid(trv_ist_valid);
-        ist.s_ray_id(trv_ist_pf_ray_id);
-        ist.s_ist_trig_idx(trv_ist_trig_idx);
-        ist.s_is_last_trig(trv_ist_is_last_trig);
+        ist.s_valid(list_ist_valid);
+        ist.s_ray_id(list_ist_ray_id);
+        ist.s_ist_trig_idx(list_ist_ist_trig_idx);
+        ist.s_is_last_trig(list_ist_is_last_trig);
         ist.clk(clk);
         ist.srstn(srstn);
         ist.m_valid(ist_tf_valid);
@@ -160,7 +187,7 @@ SC_MODULE(RTCORE) {
         // link POST_FIFO
         post_fifo.s_valid(trv_pf_valid);
         post_fifo.s_ready(trv_pf_ready);
-        post_fifo.s_ray_id(trv_ist_pf_ray_id);
+        post_fifo.s_ray_id(trv_pf_ray_id);
         post_fifo.clk(clk);
         post_fifo.srstn(srstn);
         post_fifo.m_valid(pf_post_valid);

@@ -19,7 +19,7 @@ SC_MODULE(IST) {
     RayState *ray_states;
 
     SC_HAS_PROCESS(IST);
-    IST(sc_module_name mn, Bvh *bvh, RayState *ray_states)
+    IST(const sc_module_name &mn, Bvh *bvh, RayState *ray_states)
         : sc_module(mn), bvh(bvh), ray_states(ray_states) {
         SC_METHOD(main)
         sensitive << clk.pos();
