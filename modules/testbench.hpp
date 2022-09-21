@@ -117,7 +117,7 @@ SC_MODULE(TESTBENCH) {
         sc_trace(tf, rtcore.list.s_ready, "rtcore.list.s_ready");
         sc_trace(tf, rtcore.list.m_valid, "rtcore.list.m_valid");
         sc_trace(tf, rtcore.list.m_ray_id, "rtcore.list.m_ray_id");
-        sc_trace(tf, rtcore.list.m_ist_trig_idx, "rtcore.list.m_ist_trig_idx");
+        sc_trace(tf, rtcore.list.m_trig_idx, "rtcore.list.m_trig_idx");
         sc_trace(tf, rtcore.list.m_is_last_trig, "rtcore.list.m_is_last_trig");
         sc_trace(tf, rtcore.ist.m_valid, "rtcore.ist.m_valid");
         sc_trace(tf, rtcore.ist.m_ray_id, "rtcore.ist.m_ray_id");

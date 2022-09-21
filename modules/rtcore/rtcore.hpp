@@ -87,7 +87,7 @@ SC_MODULE(RTCORE) {
     // LIST-IST
     sc_signal<bool> list_ist_valid;
     sc_signal<int> list_ist_ray_id;
-    sc_signal<int> list_ist_ist_trig_idx;
+    sc_signal<int> list_ist_trig_idx;
     sc_signal<bool> list_ist_is_last_trig;
 
     // POST_FIFO-POST
@@ -171,13 +171,13 @@ SC_MODULE(RTCORE) {
         list.srstn(srstn);
         list.m_valid(list_ist_valid);
         list.m_ray_id(list_ist_ray_id);
-        list.m_ist_trig_idx(list_ist_ist_trig_idx);
+        list.m_trig_idx(list_ist_trig_idx);
         list.m_is_last_trig(list_ist_is_last_trig);
 
         // link IST
         ist.s_valid(list_ist_valid);
         ist.s_ray_id(list_ist_ray_id);
-        ist.s_ist_trig_idx(list_ist_ist_trig_idx);
+        ist.s_trig_idx(list_ist_trig_idx);
         ist.s_is_last_trig(list_ist_is_last_trig);
         ist.clk(clk);
         ist.srstn(srstn);

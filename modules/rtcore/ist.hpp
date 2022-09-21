@@ -5,7 +5,7 @@ SC_MODULE(IST) {
     // ports
     sc_in<bool> s_valid;
     sc_in<int> s_ray_id;
-    sc_in<int> s_ist_trig_idx;
+    sc_in<int> s_trig_idx;
     sc_in<bool> s_is_last_trig;
 
     sc_in<bool> clk;
@@ -34,7 +34,7 @@ SC_MODULE(IST) {
 
     void main() {
         // load triangle from memory
-        Triangle* trig = &bvh->triangles[s_ist_trig_idx];
+        Triangle* trig = &bvh->triangles[s_trig_idx];
         float n_x = trig->n.x;
         float n_y = trig->n.y;
         float n_z = trig->n.z;
@@ -73,7 +73,7 @@ SC_MODULE(IST) {
         if (u_tmp >= 0.0f && v_tmp >= 0.0f && (u_tmp + v_tmp) <= 1.0f && 0 < t_tmp && t_tmp <= tmax) {
            ray_states[s_ray_id].tmax = t_tmp;
            ray_states[s_ray_id].hit = true;
-           ray_states[s_ray_id].hit_trig_idx = s_ist_trig_idx;
+           ray_states[s_ray_id].hit_trig_idx = s_trig_idx;
            ray_states[s_ray_id].u = u_tmp;
            ray_states[s_ray_id].v = v_tmp;
         }
