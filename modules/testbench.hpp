@@ -4,7 +4,6 @@
 #include <fstream>
 #include <unordered_map>
 #include "rtcore/rtcore.hpp"
-#include "rtcore/post.hpp"
 
 SC_MODULE(TESTBENCH) {
     // parameters
@@ -100,33 +99,24 @@ SC_MODULE(TESTBENCH) {
         sc_trace(tf, rtcore.rd.s_alloc_ray_id, "rtcore.rd.s_alloc_ray_id");
         sc_trace(tf, rtcore.rd.m_valid, "rtcore.rd.m_valid");
         sc_trace(tf, rtcore.rd.m_ray_id, "rtcore.rd.m_ray_id");
-        sc_trace(tf, rtcore.trv_fifo.m_valid, "rtcore.trv_fifo.m_valid");
-        sc_trace(tf, rtcore.trv_fifo.m_ray_id, "rtcore.trv_fifo.m_ray_id");
-        sc_trace(tf, rtcore.trv_arbitrator.s_tf_ready, "rtcore.trv_arbitrator.s_tf_ready");
-        sc_trace(tf, rtcore.trv_arbitrator.s_rd_ready, "rtcore.trv_arbitrator.s_rd_ready");
-        sc_trace(tf, rtcore.trv_arbitrator.m_valid, "rtcore.trv_arbitrator.m_valid");
-        sc_trace(tf, rtcore.trv_arbitrator.m_ray_id, "rtcore.trv_arbitrator.m_ray_id");
         sc_trace(tf, rtcore.trv.s_ready, "rtcore.trv.s_ready");
         sc_trace(tf, rtcore.trv.m_list_valid, "rtcore.trv.m_list_valid");
         sc_trace(tf, rtcore.trv.m_list_ray_id, "rtcore.trv.m_list_ray_id");
         sc_trace(tf, rtcore.trv.m_list_node_a_idx, "rtcore.trv.m_list_node_a_idx");
         sc_trace(tf, rtcore.trv.m_list_node_b_valid, "rtcore.trv.m_list_node_b_valid");
         sc_trace(tf, rtcore.trv.m_list_node_b_idx, "rtcore.trv.m_list_node_b_idx");
-        sc_trace(tf, rtcore.trv.m_pf_valid, "rtcore.trv.m_pf_valid");
-        sc_trace(tf, rtcore.trv.m_pf_ray_id, "rtcore.trv.m_pf_ray_id");
+        sc_trace(tf, rtcore.trv.m_post_valid, "rtcore.trv.m_post_valid");
+        sc_trace(tf, rtcore.trv.m_post_ray_id, "rtcore.trv.m_post_ray_id");
         sc_trace(tf, rtcore.list.s_ready, "rtcore.list.s_ready");
         sc_trace(tf, rtcore.list.m_valid, "rtcore.list.m_valid");
         sc_trace(tf, rtcore.list.m_ray_id, "rtcore.list.m_ray_id");
         sc_trace(tf, rtcore.list.m_trig_idx, "rtcore.list.m_trig_idx");
         sc_trace(tf, rtcore.list.m_is_last_trig, "rtcore.list.m_is_last_trig");
-        sc_trace(tf, rtcore.ist.m_valid, "rtcore.ist.m_valid");
-        sc_trace(tf, rtcore.ist.m_ray_id, "rtcore.ist.m_ray_id");
-        sc_trace(tf, rtcore.post_fifo.s_ready, "rtcore.post_fifo.s_ready");
-        sc_trace(tf, rtcore.post_fifo.m_valid, "rtcore.post_fifo.m_valid");
-        sc_trace(tf, rtcore.post_fifo.m_ray_id, "rtcore.post_fifo.m_ray_id");
         sc_trace(tf, rtcore.post.s_ready, "rtcore.post.s_ready");
         sc_trace(tf, rtcore.post.m_valid, "rtcore.post.m_valid");
         sc_trace(tf, rtcore.post.m_ray_id, "rtcore.post.m_ray_id");
+        sc_trace(tf, rtcore.ist.m_valid, "rtcore.ist.m_valid");
+        sc_trace(tf, rtcore.ist.m_ray_id, "rtcore.ist.m_ray_id");
         sc_trace(tf, s_ready, "s_ready");
          */
     }
@@ -137,6 +127,7 @@ SC_MODULE(TESTBENCH) {
         srstn = true;
     }
 
+    // TODO: change to module
     void raygen() {
         if (!srstn) {
             pixel_idx = 0;
@@ -166,6 +157,7 @@ SC_MODULE(TESTBENCH) {
         }
     }
 
+    // TODO: change to module
     void shader() {
         if (!srstn) {
             s_ready = false;

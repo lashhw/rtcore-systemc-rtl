@@ -49,7 +49,6 @@ SC_MODULE(LIST) {
     sc_signal<int> recv_node_b_idx;
 
     sc_signal<int> send_state;
-    sc_signal<int> send_ray_id;
     sc_signal<int> send_node_idx;
     sc_signal<bool> send_is_last_node;
     sc_signal<int> send_last_trig_idx;
@@ -149,7 +148,7 @@ SC_MODULE(LIST) {
     }
 
     void update_s_ready() {
-        s_ready = recv_node_a && lf_s_ready;
+        s_ready = (recv_node_a && lf_s_ready);
     }
 
     void update_m_valid() {
@@ -157,23 +156,23 @@ SC_MODULE(LIST) {
     }
 
     void update_m_is_last_trig() {
-        m_is_last_trig = send_is_last_node && m_trig_idx == send_last_trig_idx;
+        m_is_last_trig = (send_is_last_node && m_trig_idx == send_last_trig_idx);
     }
 
     void update_lf_s_valid() {
-        lf_s_valid = !recv_node_a || s_valid;
+        lf_s_valid = (!recv_node_a || s_valid);
     }
 
     void update_lf_s_ray_id() {
-        lf_s_ray_id = recv_node_a ? s_ray_id : recv_ray_id;
+        lf_s_ray_id = (recv_node_a ? s_ray_id : recv_ray_id);
     }
 
     void update_lf_s_node_idx() {
-        lf_s_node_idx = recv_node_a ? s_node_a_idx : recv_node_b_idx;
+        lf_s_node_idx = (recv_node_a ? s_node_a_idx : recv_node_b_idx);
     }
 
     void update_lf_s_is_last_node() {
-        lf_s_is_last_node = !recv_node_a || !s_node_b_valid;
+        lf_s_is_last_node = (!recv_node_a || !s_node_b_valid);
     }
 
     void update_lf_m_ready() {

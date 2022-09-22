@@ -9,7 +9,6 @@ SC_MODULE(IST) {
     sc_in<bool> s_is_last_trig;
 
     sc_in<bool> clk;
-    sc_in<bool> srstn;
 
     sc_out<bool> m_valid;
     sc_out<int> m_ray_id;
@@ -24,12 +23,6 @@ SC_MODULE(IST) {
         SC_METHOD(main)
         sensitive << clk.pos();
         dont_initialize();
-
-        SC_METHOD(update_m_valid)
-        sensitive << s_is_last_trig;
-
-        SC_METHOD(update_m_ray_id)
-        sensitive << s_ray_id;
     }
 
     void main() {
@@ -77,13 +70,8 @@ SC_MODULE(IST) {
            ray_states[s_ray_id].u = u_tmp;
            ray_states[s_ray_id].v = v_tmp;
         }
-    }
 
-    void update_m_valid() {
         m_valid = s_valid && s_is_last_trig;
-    }
-
-    void update_m_ray_id() {
         m_ray_id = s_ray_id;
     }
 };
