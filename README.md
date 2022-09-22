@@ -14,4 +14,4 @@ g++ ../main.cpp -lsystemc
 ```
 
 ## Implementation Details
-![](https://i.imgur.com/zrbWhuz.png)
+![](https://i.imgur.com/AWyrzqz.png)
