@@ -42,7 +42,6 @@ SC_MODULE(RTCORE) {
     IST ist;
 
     // high-level objects
-    Bvh *bvh;
     RayState ray_states[MaxWorkingRays];
 
     // internal signals
@@ -81,8 +80,7 @@ SC_MODULE(RTCORE) {
     RTCORE(const sc_module_name &mn, Bvh *bvh)
         : sc_module(mn), rd("rd", ray_states),
           trv("trv", bvh, ray_states), list("list", bvh),
-          post("post", ray_states), ist("ist", bvh, ray_states),
-          bvh(bvh) {
+          post("post", ray_states), ist("ist", bvh, ray_states) {
         // link RD
         rd.s_alloc_valid(s_valid);
         rd.s_alloc_ready(s_ready);

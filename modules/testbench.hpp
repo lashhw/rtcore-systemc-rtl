@@ -18,7 +18,6 @@ SC_MODULE(TESTBENCH) {
     SHADER<width, height> shader;
 
     // high-level objects
-    Bvh *bvh;
     std::unordered_map<int, int> ray_id_to_pixel_idx;
 
     // internal signals
@@ -54,7 +53,7 @@ SC_MODULE(TESTBENCH) {
     TESTBENCH(const sc_module_name &mn, Bvh *bvh)
         : sc_module(mn), raygen("raygen", &ray_id_to_pixel_idx),
           rtcore("rtcore", bvh), shader("shader", bvh, &ray_id_to_pixel_idx),
-          bvh(bvh), clk("clk", 2, SC_PS) {
+          clk("clk", 2, SC_PS) {
         // link RAYGEN
         raygen.clk(clk);
         raygen.srstn(srstn);
