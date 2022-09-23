@@ -1,0 +1,3 @@
+[submodule "gen_references/bvh"]
+	path = gen_references/bvh
+	url = https://github.com/madmann91/bvh.git

@@ -19,9 +19,12 @@ SC_MODULE(SHADER) {
     // high-level objects
     Bvh *bvh;
     std::unordered_map<int, int> *ray_id_to_pixel_idx;
-    int framebuffer_r[Width * Height];
-    int framebuffer_g[Width * Height];
-    int framebuffer_b[Width * Height];
+    unsigned char framebuffer_r[Width * Height];
+    unsigned char framebuffer_g[Width * Height];
+    unsigned char framebuffer_b[Width * Height];
+    float t[Width * Height];
+    float u[Width * Height];
+    float v[Width * Height];
 
     SC_HAS_PROCESS(SHADER);
     SHADER(const sc_module_name &mn, Bvh *bvh, std::unordered_map<int, int> *ray_id_to_pixel_idx)
@@ -48,10 +51,16 @@ SC_MODULE(SHADER) {
                 framebuffer_r[pixel_idx] = std::clamp(int(256.f * r), 0, 255);
                 framebuffer_g[pixel_idx] = std::clamp(int(256.f * g), 0, 255);
                 framebuffer_b[pixel_idx] = std::clamp(int(256.f * b), 0, 255);
+                t[pixel_idx] = s_t;
+                u[pixel_idx] = s_u;
+                v[pixel_idx] = s_v;
             } else {
                 framebuffer_r[pixel_idx] = 0;
                 framebuffer_g[pixel_idx] = 0;
                 framebuffer_b[pixel_idx] = 0;
+                t[pixel_idx] = -1.f;
+                u[pixel_idx] = -1.f;
+                v[pixel_idx] = -1.f;
             }
         }
     }
@@ -62,11 +71,12 @@ SC_MODULE(SHADER) {
 
     ~SHADER() {
         std::ofstream image_file("image.ppm");
+        std::ofstream intersection_file("intersection.txt");
         image_file << "P3\n" << Width << ' ' << Height << "\n255\n";
-        for(int i = 0; i < Height * Width; i++) {
-            image_file << framebuffer_r[i] << ' ' << framebuffer_g[i] << ' ' << framebuffer_b[i] << "\n";
+        for(int i = 0; i < Width * Height; i++) {
+            image_file << (int)framebuffer_r[i] << ' ' << (int)framebuffer_g[i] << ' ' << (int)framebuffer_b[i] << '\n';
+            intersection_file << t[i] << ' ' << u[i] << ' ' << v[i] << '\n';
         }
-        image_file.close();
     }
 };
 
