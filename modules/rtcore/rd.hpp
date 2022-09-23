@@ -3,7 +3,7 @@
 
 #include "fifos/rd_post_fifo.hpp"
 
-template<int MAX_WORKING_RAYS>
+template<int MaxWorkingRays>
 SC_MODULE(RD) {
     // ports
     sc_in<bool> s_alloc_valid;
@@ -31,8 +31,8 @@ SC_MODULE(RD) {
     sc_out<int> m_ray_id;
 
     // submodules
-    RD_POST_FIFO<MAX_WORKING_RAYS, true> free_fifo;
-    RD_POST_FIFO<MAX_WORKING_RAYS, false> working_fifo;
+    RD_POST_FIFO<MaxWorkingRays, true> free_fifo;
+    RD_POST_FIFO<MaxWorkingRays, false> working_fifo;
 
     // high-level objects
     RayState *ray_states;

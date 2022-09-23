@@ -3,7 +3,7 @@
 
 #include "fifos/list_fifo.hpp"
 
-template<int MAX_DEPTH>
+template<int MaxDepth>
 SC_MODULE(LIST) {
     // send_state definitions
     static constexpr int IDLE = 0;
@@ -27,7 +27,7 @@ SC_MODULE(LIST) {
     sc_out<bool> m_is_last_trig;
 
     // submodules
-    LIST_FIFO<MAX_DEPTH> list_fifo;
+    LIST_FIFO<MaxDepth> list_fifo;
 
     // high-level objects
     Bvh *bvh;

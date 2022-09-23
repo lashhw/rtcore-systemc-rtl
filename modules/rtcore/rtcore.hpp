@@ -8,7 +8,7 @@
 #include "post.hpp"
 #include "ist.hpp"
 
-template<int MAX_WORKING_RAYS>
+template<int MaxWorkingRays>
 SC_MODULE(RTCORE) {
     // ports
     sc_in<bool> s_valid;
@@ -35,15 +35,15 @@ SC_MODULE(RTCORE) {
     sc_out<float> m_v;
 
     // submodules
-    RD<MAX_WORKING_RAYS> rd;
-    TRV<MAX_WORKING_RAYS> trv;
-    LIST<MAX_WORKING_RAYS> list;
-    POST<MAX_WORKING_RAYS> post;
+    RD<MaxWorkingRays> rd;
+    TRV<MaxWorkingRays> trv;
+    LIST<MaxWorkingRays> list;
+    POST<MaxWorkingRays> post;
     IST ist;
 
     // high-level objects
     Bvh *bvh;
-    RayState ray_states[MAX_WORKING_RAYS];
+    RayState ray_states[MaxWorkingRays];
 
     // internal signals
     // RD-IST

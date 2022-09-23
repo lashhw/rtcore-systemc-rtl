@@ -2,7 +2,7 @@
 #define RTCORE_SYSTEMC_TRV_HPP
 
 // TODO: this TRV unit works only when the root node of the BVH is not leaf
-template<int MAX_WORKING_RAYS>
+template<int MaxWorkingRays>
 SC_MODULE(TRV) {
     // state definitions
     static constexpr int IDLE = 0;
@@ -85,8 +85,8 @@ SC_MODULE(TRV) {
     // STEP
     sc_signal<int> old_left_node_idx;
     sc_signal<int> old_right_node_idx;
-    sc_signal<int> stk_size[MAX_WORKING_RAYS];
-    sc_signal<int> stk_data[MAX_WORKING_RAYS][Bvh::BVH_MAX_DEPTH - 1];
+    sc_signal<int> stk_size[MaxWorkingRays];
+    sc_signal<int> stk_data[MaxWorkingRays][Bvh::BVH_MAX_DEPTH - 1];
     sc_signal<int> finished;
 
     SC_HAS_PROCESS(TRV);

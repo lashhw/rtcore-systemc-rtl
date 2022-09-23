@@ -1,7 +1,7 @@
 #ifndef RTCORE_SYSTEMC_RAYGEN_HPP
 #define RTCORE_SYSTEMC_RAYGEN_HPP
 
-template<int width, int height>
+template<int Width, int Height>
 SC_MODULE(RAYGEN) {
     // parameters
     static constexpr float origin_x = 0.f;
@@ -61,14 +61,14 @@ SC_MODULE(RAYGEN) {
     }
 
     void update_m_valid() {
-        m_valid = (srstn && pixel_idx < width * height);
+        m_valid = (srstn && pixel_idx < Width * Height);
     }
 
     void update_m_dir() {
-        float j = pixel_idx % width;
-        float i = pixel_idx / width;
-        m_dir_x = (-0.1f + horizontal * j / width) - origin_x;
-        m_dir_y = (0.2f - vertical * i / height) - origin_y;
+        float j = pixel_idx % Width;
+        float i = pixel_idx / Width;
+        m_dir_x = (-0.1f + horizontal * j / Width) - origin_x;
+        m_dir_y = (0.2f - vertical * i / Height) - origin_y;
         m_dir_z = -1.f;
     }
 };

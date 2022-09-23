@@ -1,7 +1,7 @@
 #ifndef RTCORE_SYSTEMC_POST_HPP
 #define RTCORE_SYSTEMC_POST_HPP
 
-template <int MAX_DEPTH>
+template <int MaxDepth>
 SC_MODULE(POST) {
     // ports
     sc_in<bool> s_valid;
@@ -21,7 +21,7 @@ SC_MODULE(POST) {
     sc_out<float> m_v;
 
     // submodules
-    RD_POST_FIFO<MAX_DEPTH> post_fifo;
+    RD_POST_FIFO<MaxDepth> post_fifo;
 
     // high-level objects
     RayState *ray_states;

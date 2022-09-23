@@ -1,7 +1,7 @@
 #ifndef RTCORE_SYSTEMC_SHADER_HPP
 #define RTCORE_SYSTEMC_SHADER_HPP
 
-template<int width, int height>
+template<int Width, int Height>
 SC_MODULE(SHADER) {
     // ports
     sc_in<bool> s_valid;
@@ -19,9 +19,9 @@ SC_MODULE(SHADER) {
     // high-level objects
     Bvh *bvh;
     std::unordered_map<int, int> *ray_id_to_pixel_idx;
-    int framebuffer_r[width * height];
-    int framebuffer_g[width * height];
-    int framebuffer_b[width * height];
+    int framebuffer_r[Width * Height];
+    int framebuffer_g[Width * Height];
+    int framebuffer_b[Width * Height];
 
     SC_HAS_PROCESS(SHADER);
     SHADER(const sc_module_name &mn, Bvh *bvh, std::unordered_map<int, int> *ray_id_to_pixel_idx)
@@ -62,8 +62,8 @@ SC_MODULE(SHADER) {
 
     ~SHADER() {
         std::ofstream image_file("image.ppm");
-        image_file << "P3\n" << width << ' ' << height << "\n255\n";
-        for(int i = 0; i < height * width; i++) {
+        image_file << "P3\n" << Width << ' ' << Height << "\n255\n";
+        for(int i = 0; i < Height * Width; i++) {
             image_file << framebuffer_r[i] << ' ' << framebuffer_g[i] << ' ' << framebuffer_b[i] << "\n";
         }
         image_file.close();
