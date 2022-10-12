@@ -2,7 +2,7 @@
 #define RTCORE_SYSTEMC_TRV_HPP
 
 // TODO: this TRV unit works only when the root node of the BVH is not leaf
-template<int MAX_WORKING_RAYS>
+template<int MaxWorkingRays>
 SC_MODULE(TRV) {
     // state definitions
     static constexpr int IDLE = 0;
@@ -31,9 +31,9 @@ SC_MODULE(TRV) {
     sc_out<bool> m_list_node_b_valid;
     sc_out<int> m_list_node_b_idx;
 
-    sc_out<bool> m_pf_valid;
-    sc_in<bool> m_pf_ready;
-    sc_out<int> m_pf_ray_id;
+    sc_out<bool> m_post_valid;
+    sc_in<bool> m_post_ready;
+    sc_out<int> m_post_ray_id;
 
     // high-level objects
     Bvh *bvh;
@@ -41,12 +41,11 @@ SC_MODULE(TRV) {
 
     // internal signals
     sc_signal<int> state;
-
     sc_signal<int> ray_id;
 
+    // LOAD
     sc_signal<int> left_node_idx;
     sc_signal<int> right_node_idx;
-
     sc_signal<bool> octant_x;
     sc_signal<bool> octant_y;
     sc_signal<bool> octant_z;
@@ -57,6 +56,7 @@ SC_MODULE(TRV) {
     sc_signal<float> scaled_origin_y;
     sc_signal<float> scaled_origin_z;
 
+    // BBOX_LOAD
     sc_signal<float> left_bound_x_min;
     sc_signal<float> left_bound_x_max;
     sc_signal<float> left_bound_y_min;
@@ -64,7 +64,6 @@ SC_MODULE(TRV) {
     sc_signal<float> left_bound_z_min;
     sc_signal<float> left_bound_z_max;
     sc_signal<bool> left_is_leaf;
-
     sc_signal<float> right_bound_x_min;
     sc_signal<float> right_bound_x_max;
     sc_signal<float> right_bound_y_min;
@@ -73,18 +72,21 @@ SC_MODULE(TRV) {
     sc_signal<float> right_bound_z_max;
     sc_signal<bool> right_is_leaf;
 
+    // BBOX
     sc_signal<bool> left_hit;
     sc_signal<bool> right_hit;
     sc_signal<float> left_entry;
     sc_signal<float> right_entry;
 
+    // NODE_LOAD
     sc_signal<int> left_node_left_node_idx;
     sc_signal<int> right_node_left_node_idx;
 
+    // STEP
     sc_signal<int> old_left_node_idx;
     sc_signal<int> old_right_node_idx;
-    sc_signal<int> stk_size[MAX_WORKING_RAYS];
-    sc_signal<int> stk_data[MAX_WORKING_RAYS][Bvh::BVH_MAX_DEPTH - 1];
+    sc_signal<int> stk_size[MaxWorkingRays];
+    sc_signal<int> stk_data[MaxWorkingRays][Bvh::BVH_MAX_DEPTH - 1];
     sc_signal<int> finished;
 
     SC_HAS_PROCESS(TRV);
@@ -125,9 +127,7 @@ SC_MODULE(TRV) {
             // update state
             if (s_valid) state = LOAD;
         } else if (state == LOAD) {
-            int left_node_idx_tmp = ray_states[ray_id].left_node_idx;
-            left_node_idx = left_node_idx_tmp;
-
+            left_node_idx = ray_states[ray_id].left_node_idx;
             octant_x = ray_states[ray_id].octant_x;
             octant_y = ray_states[ray_id].octant_y;
             octant_z = ray_states[ray_id].octant_z;
@@ -262,7 +262,7 @@ SC_MODULE(TRV) {
             if (m_list_ready) state = IDLE;
         } else if (state == POST) {
             // update state
-            if (m_pf_ready) state = IDLE;
+            if (m_post_ready) state = IDLE;
         }
     }
 
@@ -279,11 +279,11 @@ SC_MODULE(TRV) {
     }
 
     void update_m_pf_valid() {
-        m_pf_valid = (state == POST);
+        m_post_valid = (state == POST);
     }
 
     void update_m_pf_ray_id() {
-        m_pf_ray_id = ray_id;
+        m_post_ray_id = ray_id;
     }
 
     void update_right_node_idx() {

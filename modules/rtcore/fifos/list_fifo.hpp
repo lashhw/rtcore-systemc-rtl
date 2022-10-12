@@ -1,7 +1,7 @@
 #ifndef RTCORE_SYSTEMC_LIST_FIFO_HPP
 #define RTCORE_SYSTEMC_LIST_FIFO_HPP
 
-template<int MAX_DEPTH>
+template<int MaxDepth>
 SC_MODULE(LIST_FIFO) {
     // ports
     sc_in<bool> s_valid;
@@ -20,9 +20,9 @@ SC_MODULE(LIST_FIFO) {
     sc_out<bool> m_is_last_node;
 
     // internal states
-    sc_signal<int> ray_id[MAX_DEPTH + 1];
-    sc_signal<int> node_idx[MAX_DEPTH + 1];
-    sc_signal<bool> is_last_node[MAX_DEPTH + 1];
+    sc_signal<int> ray_id[MaxDepth + 1];
+    sc_signal<int> node_idx[MaxDepth + 1];
+    sc_signal<bool> is_last_node[MaxDepth + 1];
     sc_signal<int> front;
     sc_signal<int> back;
 
@@ -38,15 +38,15 @@ SC_MODULE(LIST_FIFO) {
         sensitive << front << back;
 
         SC_METHOD(update_m_ray_id)
-        for (int i = 0; i <= MAX_DEPTH; i++) sensitive << ray_id[i];
+        for (int i = 0; i <= MaxDepth; i++) sensitive << ray_id[i];
         sensitive << front;
 
         SC_METHOD(update_m_node_idx)
-        for (int i = 0; i <= MAX_DEPTH; i++) sensitive << node_idx[i];
+        for (int i = 0; i <= MaxDepth; i++) sensitive << node_idx[i];
         sensitive << front;
 
         SC_METHOD(update_m_is_last_node)
-        for (int i = 0; i <= MAX_DEPTH; i++) sensitive << is_last_node[i];
+        for (int i = 0; i <= MaxDepth; i++) sensitive << is_last_node[i];
         sensitive << front;
     }
 
@@ -59,16 +59,16 @@ SC_MODULE(LIST_FIFO) {
                 ray_id[back] = s_ray_id;
                 node_idx[back] = s_node_idx;
                 is_last_node[back] = s_is_last_node;
-                back = (back + 1) % (MAX_DEPTH + 1);
+                back = (back + 1) % (MaxDepth + 1);
             }
             if (m_valid && m_ready) {
-                front = (front + 1) % (MAX_DEPTH + 1);
+                front = (front + 1) % (MaxDepth + 1);
             }
         }
     }
 
     void update_s_ready() {
-        s_ready = ((back + 1) % (MAX_DEPTH + 1) != front);
+        s_ready = ((back + 1) % (MaxDepth + 1) != front);
     }
 
     void update_m_valid() {
