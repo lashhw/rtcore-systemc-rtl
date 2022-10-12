@@ -1,6 +1,7 @@
 #ifndef RTCORE_SYSTEMC_TRIANGLE_HPP
 #define RTCORE_SYSTEMC_TRIANGLE_HPP
 
+#include <cmath>
 #include "vec3.hpp"
 #include "bounding_box.hpp"
 
